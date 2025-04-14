@@ -23,7 +23,7 @@ const getDetallesPedidos: CustomHandler = async (_req, res) => {
     const [rows] = await connection.query('SELECT * FROM detalle_pedidos');
     res.json({ data: rows as DetallePedido[] });
   } catch (error) {
-    console.error('❌ Error al obtener detalle de pedidos:', error);
+    console.error(' Error al obtener detalle de pedidos:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
@@ -48,9 +48,9 @@ const postDetallePedido: CustomHandler = async (req, res) => {
       )
     );
 
-    res.status(201).json({ message: '✅ Productos agregados al pedido' });
+    res.status(201).json({ message: ' Productos agregados al pedido' });
   } catch (error) {
-    console.error('❌ Error al agregar productos al pedido:', error);
+    console.error(' Error al agregar productos al pedido:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
@@ -63,9 +63,9 @@ const deleteDetallePedido: CustomHandler = async (req, res) => {
 
   try {
     await connection.execute('DELETE FROM detalle_pedidos WHERE id = ?', [id]);
-    res.json({ message: '🗑️ Producto eliminado del pedido' });
+    res.json({ message: ' Producto eliminado del pedido' });
   } catch (error) {
-    console.error('❌ Error al eliminar producto del pedido:', error);
+    console.error(' Error al eliminar producto del pedido:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };

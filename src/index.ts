@@ -2,56 +2,64 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connection } from './config/db';
-import categoriaRoutes from './routes/categorias.routes';
-import pedidosRoutes from './routes/pedidos.routes';
-import detallePedidosRoutes from './routes/detalle_pedidos.routes';
-import productosRoutes from './routes/productos.routes';
-import variantesRoutes from './routes/variantes.routes';
-import usuariosRoutes from './routes/usuarios.routes'; 
-import authRoutes from './routes/auth.routes'; 
-import errorHandler from './middlewares/errorhandler';
 
-
+// 🌐 Carga de variables de entorno
 dotenv.config();
-
 if (!process.env.DB_HOST || !process.env.DB_USER) {
-    console.warn('⚠️ Variables de entorno no cargadas correctamente.');
+  console.warn('⚠️ Variables de entorno no cargadas correctamente.');
 }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// 🧩 Middlewares globales
 app.use(cors());
 app.use(express.json());
 
-// Rutas principales
-console.log('🧪 authRoutes:', authRoutes);
+// 🔗 Importación de rutas
+import authRoutes from './routes/auth.routes';
+import usuariosRoutes from './routes/usuarios.routes';
+import clientesRoutes from './routes/clientes.routes';
+import pedidosClienteRoutes from './routes/pedidosCliente';
+import pedidosRoutes from './routes/pedidos.routes';
+import detallePedidosRoutes from './routes/detalle_pedidos.routes';
+import categoriaRoutes from './routes/categorias.routes';
+import productosRoutes from './routes/productos.routes';
+import variantesRoutes from './routes/variantes.routes';
+import devRoutes from './routes/dev.routes'; // ⚠️ Borrar en producción
 
-app.use('/api/auth', authRoutes);                    // Registro y login
-app.use('/api/usuarios', usuariosRoutes);            // Gestión de usuarios
-app.use('/api/categorias', categoriaRoutes);
-app.use('/api/pedidos', pedidosRoutes);
-app.use('/api/detalle-pedidos', detallePedidosRoutes);
-app.use('/api/productos', productosRoutes);
-app.use('/api/variantes', variantesRoutes);
+// 🛣️ Rutas de la API
+console.log('✅ Rutas principales cargadas correctamente');
 
-// Middleware global para errores
+app.use('/api/auth', authRoutes);                          // Login y registro
+app.use('/api/usuarios', usuariosRoutes);                  // Usuarios
+app.use('/api/clientes', clientesRoutes);                  // Clientes
+app.use('/api/pedidos/cliente', pedidosClienteRoutes);     // Pedidos por cliente
+app.use('/api/pedidos', pedidosRoutes);                    // Pedidos generales
+app.use('/api/detalle-pedidos', detallePedidosRoutes);     // Detalle de pedidos
+app.use('/api/categorias', categoriaRoutes);               // Categorías
+app.use('/api/productos', productosRoutes);                // Productos
+app.use('/api/variantes', variantesRoutes);                // Variantes
+
+app.use('/api/dev', devRoutes); // ⚠️ Ruta temporal (eliminar para producción)
+
+// 🧯 Middleware global para manejo de errores
+import errorHandler from './middlewares/errorhandler';
 app.use(errorHandler);
 
-// Inicio del servidor
+// 🚀 Inicio del servidor
 const startServer = async () => {
-try {
+  try {
     await connection.getConnection();
     console.log('✅ Conexión con la base de datos lista');
 
     app.listen(PORT, () => {
-        console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`Servidor corriendo en http://localhost:${PORT}`);
     });
-    } catch (err: any) {
+  } catch (err: any) {
     console.error('❌ Error en la conexión de base de datos:', err.message);
     process.exit(1);
-}
+  }
 };
 
 startServer();

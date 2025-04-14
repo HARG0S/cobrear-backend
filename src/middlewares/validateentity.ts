@@ -38,6 +38,16 @@ export const validateEntity = (entityType: string) => {
           res.status(400).json({ message: 'El usuario debe tener username, password y rol' });
           return;
         }
+
+        if (body.rol === 'cliente') {
+          const camposCliente = ['nombre', 'telefono', 'direccion', 'identificacion', 'tipo_cliente'];
+          const faltantes = camposCliente.filter(campo => !body[campo]);
+
+          if (faltantes.length > 0) {
+            res.status(400).json({ message: `Faltan campos obligatorios del cliente: ${faltantes.join(', ')}` });
+            return;
+          }
+        }
         break;
 
       default:
@@ -48,3 +58,4 @@ export const validateEntity = (entityType: string) => {
     next();
   };
 };
+

@@ -1,24 +1,38 @@
+// validate-auth.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export const validateAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+interface DecodedToken {
+  id: number;
+  username: string;
+  rol: string;
+  iat: number;
+  exp: number;
+}
 
-    try {
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: DecodedToken;
+  }
+}
+
+export const validateAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        res.status(401).json({ message: 'Token no proporcionado o malformado' });
-        return;
+      res.status(401).json({ message: 'Token no proporcionado o malformado' });
+      return;
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
 
-    (req as any).user = decoded; // Guarda los datos del token en req.user
+    req.user = decoded; // Ahora tipado correctamente
     next();
-    } catch (error) {
+  } catch (error) {
     res.status(401).json({ message: 'Token inválido o expirado' });
-}
+  }
 };
 
 export default validateAuth;

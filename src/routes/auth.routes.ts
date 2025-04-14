@@ -1,4 +1,4 @@
-console.log('🟢 auth.routes cargado'); // al principio del archivo
+console.log(' auth.routes cargado'); // al principio del archivo
 
 import { Router } from 'express';
 import { connection } from '../config/db';
@@ -84,7 +84,7 @@ const loginUser: CustomHandler = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Error en /login:', error);
+        console.error(' Error en /login:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };

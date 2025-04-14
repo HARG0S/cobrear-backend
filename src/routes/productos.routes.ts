@@ -1,55 +1,59 @@
 import { Router } from 'express';
 import { connection } from '../config/db';
 import { Producto } from '../types/entities/producto';
-import { ServerResponse } from '../types/entities/serverresponse';
 import { CustomHandler } from '../types/handlers/customhandler';
 
 const router = Router();
 
-// GET: Obtener todos los productos
-const getProductos: CustomHandler = async (req, res) => {
-  const { categoria } = req.query;
-
+// GET: Obtener productos agrupados por categoría, con nombre de la categoría
+const getProductosAgrupados: CustomHandler = async (_req, res) => {
   try {
-    let query = 'SELECT * FROM productos';
-    const params: any[] = [];
+    const [rows] = await connection.query<any[]>(`
+      SELECT 
+        p.id,
+        p.nombre,
+        p.descripcion,
+        p.precio,
+        p.categoria_id,
+        c.nombre AS categoria_nombre
+      FROM productos p
+      JOIN categorias c ON p.categoria_id = c.id
+    `);
 
-    if (categoria) {
-      query += ' WHERE categoria_id = ?';
-      params.push(categoria);
+    const agrupados: Record<string, {
+      id: string;
+      nombre: string;
+      productos: Producto[];
+    }> = {};
+
+    for (const row of rows) {
+      const catId = row.categoria_id;
+      const catNombre = row.categoria_nombre;
+
+      if (!agrupados[catId]) {
+        agrupados[catId] = {
+          id: catId,
+          nombre: catNombre,
+          productos: [],
+        };
+      }
+
+      agrupados[catId].productos.push({
+        id: row.id,
+        nombre: row.nombre,
+        descripcion: row.descripcion,
+        precio: Number(row.precio), // ✅ Conversión segura
+        categoria_id: row.categoria_id,
+      });
     }
 
-    const [rows] = await connection.query(query, params);
-    res.json({ data: rows as Producto[] });
-
+    res.json({ data: Object.values(agrupados) });
   } catch (error) {
-    console.error('Error al obtener productos:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    console.error('Error al agrupar productos:', error);
+    res.status(500).json({ message: 'Error al agrupar productos' });
   }
 };
 
-router.get('/', getProductos);
-
-// POST: Agregar un nuevo producto
-const postProducto: CustomHandler = async (req, res) => {
-  const { nombre, descripcion, precio, categoria_id } = req.body;
-
-  if (!nombre || !precio) {
-    return res.status(400).json({ message: 'El nombre y precio son obligatorios' });
-  }
-
-  try {
-    await connection.query(
-      'INSERT INTO productos (nombre, descripcion, precio, categoria_id) VALUES (?, ?, ?, ?)',
-      [nombre, descripcion, precio, categoria_id]
-    );
-    res.status(201).json({ message: 'Producto agregado correctamente' });
-  } catch (error) {
-    console.error('Error al agregar producto:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-router.post('/', postProducto);
+router.get('/agrupados', getProductosAgrupados);
 
 export default router;

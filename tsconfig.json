@@ -1,17 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",                       // ← Cambio CLAVE
-    "rootDir": "src",
-    "outDir": "dist",
-    "strict": false,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
+    "target": "ES2020",                       // Moderno y compatible
+    "module": "CommonJS",                     // Necesario para Node.js con require
+    "lib": ["ES2020"],                        // Garantiza acceso a las últimas funciones del lenguaje
+    "rootDir": "src",                         // Carpeta de entrada
+    "outDir": "dist",                         // Carpeta de salida compilada
+    "moduleResolution": "node",              // Para que resuelva imports al estilo Node
+    "esModuleInterop": true,                 // Permite importar módulos tipo `import x from 'y'`
+    "resolveJsonModule": true,               // Para poder importar JSONs
+    "skipLibCheck": true,                    // Omite chequeos de .d.ts externos
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types"],
-    "baseUrl": "./"
+    "strict": true,                          // Activá esto cuando quieras mayor control
+    "typeRoots": ["./node_modules/@types"],  // Tipos externos
+    "baseUrl": ".",                          // Base para imports relativos
+    "noImplicitAny": false                   // Permite usar `any` sin advertencia
   },
-  "include": ["src"]
+  "include": ["src"],                        // Solo compila código fuente
+  "exclude": ["node_modules", "dist"]        // Evita recompilar librerías y salida
 }

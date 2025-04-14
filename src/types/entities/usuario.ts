@@ -1,9 +1,9 @@
 export type Usuario = {
     id: number;
-    nombre: string;
+    username: string; // antes estaba como "nombre"
     email: string;
     password: string;
     rol: 'admin' | 'vendedor' | 'cliente';
-};
-
-export {};
+    cliente_id?: number; // si está asociado a un cliente
+  };
+  
